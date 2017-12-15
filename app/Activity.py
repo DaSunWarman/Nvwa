@@ -1,16 +1,15 @@
+#
+# Copyright (C) 2017 The Nvwa Open Source Project
+#
+
 import sys
-sys.path.append("E:\\Work\\PycharmProjects\\Nvwa\\shitou\\frameworks\\base\\core\\python")
 
-print sys.path
-
-
-from nvwa.content.Context import Context
-c =Context()
+from content.Context import Context
 
 
 class Activity(Context):
     def __init__(self):
-        pass
+        super(Activity, self).__init__()
 
     def onCreate(self):
         pass
@@ -24,4 +23,7 @@ class Activity(Context):
         pass
 
     def onRestart(self):
+        pass
+
+    def onDestroy(self):
         pass
