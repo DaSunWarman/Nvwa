@@ -31,3 +31,5 @@ class Sample(Activity):
 
     def onDestroy(self):
         print self.s_tag + ' onDestroy'
+
+

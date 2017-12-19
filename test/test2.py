@@ -1,16 +1,11 @@
-from multiprocessing.connection import Client
-from array import array
+from multiprocessing.managers import BaseManager
+class QueueManager(BaseManager): pass
 
-# address = ('localhost', 6000)
-address = r'\\.\pipe\PipeConsole'
-conn = Client(address, authkey='nvwa')
+QueueManager.register('A')
+m = QueueManager(address=r'\\.\pipe\aa', authkey='abracadabra')
+m.connect()
 
-print conn.recv()                 # => [2.25, None, 'junk', float]
+a = m.A()
 
-print conn.recv_bytes()            # => 'hello'
-
-arr = array('i', [0, 0, 0, 0, 0])
-print conn.recv_bytes_into(arr)     # => 8
-print arr                         # => array('i', [42, 1729, 0, 0, 0])
-
-conn.close()
+# a.m_init()
+a.out()

@@ -6,6 +6,7 @@ import threading
 
 from app.ActivityManager import ActivityManager
 from content.PackageManager import PackageManager
+import time
 
 
 class AppProcess(object):
@@ -28,17 +29,17 @@ class AppProcess(object):
     def m_runAppProcess():
         print "App Process start"
         o_packageManager = PackageManager()
+        o_packageManager.m_init()
         o_activityManager = ActivityManager()
+        o_activityManager.m_init()
 
-        pm_cmd = 'install'
-        if pm_cmd == 'install':
-            o_packageManager.m_pm_install('Sample')
 
-        am_cmd = 'start'
-        if am_cmd == 'start':
-            o_app = o_packageManager.m_getPackage('Sample')
-            o_activityManager.m_addAppTask(o_app)
-            o_activityManager.m_runAppTasks()
+
+        while True:
+            time.sleep(20)
+            print "App Process runing"
+        o_packageManager.m_destroy()
+        o_activityManager.m_destroy()
 
 
 

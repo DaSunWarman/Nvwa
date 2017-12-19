@@ -5,18 +5,33 @@
 from multiprocessing.connection import Listener
 from array import array
 from multiprocessing.connection import Client
+from multiprocessing import Event
+import threading
+import multiprocessing
+from utils.Binder import Binder
+from multiprocessing.managers import BaseManager, BaseProxy
+import Queue
 
 
 class Console(object):
-    def __init__(self):
-        self.address = ''
-        self.listener = None
-        self.conn = None
-        self.s_cmd = ''
+    '''
+    pm install package
+    pm install -r package
+    pm uninstall package
+    pm list
+
+    am start
+    am pause
+    am stop
+    am restart
+    '''
 
     def m_initConsole(self):
-        self.address = r'\\.\pipe\PipeConsole'
-        self.conn = Client(self.address, authkey='nvwa')
+        self.s_cmd = ''
+        self.o_binder = Binder()
+        self.o_binder.m_registerObj(self.__class__.__name__, self.__class__)
+        self.o_rm_consoleCommunicate = self.o_binder.m_getRemoteManager('ConsoleCommunicate')
+        self.o_consoleCommunicate = self.o_rm_consoleCommunicate.ConsoleCommunicate()
 
     def m_getInput(self):
         self.s_input = raw_input("nvwa:$")
@@ -24,22 +39,60 @@ class Console(object):
     def m_parseCmd(self):
         self.s_cmd = self.s_input
 
+    def m_cmd_pm_install(self, s_package):
+        self.o_consoleCommunicate.m_init()
+        self.o_consoleCommunicate.m_cmd_pm_install(s_package)
 
-    def m_sendCmd(self):
-        self.conn.send(self.s_cmd)
+    def m_on_cmd_pm_install(self, s_result):
+        print s_result
+
+    def m_cmd_pm_install_r(self, s_package):
+        self.o_consoleCommunicate.m_cmd_pm_install_r(s_package)
+
+    def m_on_cmd_pm_install_r(self, s_result):
+        print s_result
+
+    def m_cmd_pm_uninstall(self, s_package):
+        self.o_consoleCommunicate.m_cmd_pm_uninstall(s_package)
+
+    def m_on_cmd_pm_uninstall(self, s_result):
+        print s_result
+
+    def m_cmd_pm_list(self):
+        self.o_consoleCommunicate.m_cmd_pm_list()
+
+    def m_on_cmd_pm_list(self, s_result):
+        print s_result
+
+    def m_cmd_am_start(self):
+        # self.o_consoleCommunicate.m_init()
+        self.o_consoleCommunicate.m_cmd_am_start()
+
+    def m_on_cmd_am_start(self, s_result):
+        print s_result
+
+    def m_cmd_am_pause(self):
+        self.o_consoleCommunicate.m_cmd_am_pause()
+
+    def m_on_cmd_am_pause(self, s_result):
+        print s_result
+
+    def m_cmd_am_stop(self):
+        self.o_consoleCommunicate.m_cmd_am_stop()
+
+    def m_on_cmd_am_stop(self, s_result):
+        print s_result
+
+    def m_cmd_am_restart(self):
+        self.o_consoleCommunicate.m_cmd_am_restart()
+
+    def m_on_cmd_am_restart(self, s_result):
+        print s_result
 
 
-    def m_recvAnswer(self):
-        print self.conn.recv()
-
-    def m_close(self):
-        if self.conn != None:
-            self.conn.close()
-        if self.listener != None:
-            self.listener.close()
-
-    def __del__(self):
-        self.m_close()
+    def m_destroy(self):
+        if self.o_binder is not None:
+            self.o_binder.m_unregisterObj()
 
 
 # ------------------------------------------------------------------------------
@@ -50,11 +103,27 @@ if __name__ == "__main__":
     while True:
         c.m_getInput()
         c.m_parseCmd()
+        # TODO
+        s_package = 'Sample'
+
         if c.s_cmd == "exit":
             break
+        elif c.s_cmd == 'install':
+            c.m_cmd_pm_install(s_package)
+        elif c.s_cmd == 'installr':
+            c.m_cmd_pm_install_r(s_package)
+        elif c.s_cmd == 'uninstall':
+            c.m_cmd_pm_uninstall(s_package)
+        elif c.s_cmd == 'list':
+            c.m_cmd_pm_list()
+        elif c.s_cmd == 'start':
+            c.m_cmd_am_start()
+        elif c.s_cmd == 'pause':
+            c.m_cmd_am_pause()
+        elif c.s_cmd == 'stop':
+            c.m_cmd_am_stop()
+        elif c.s_cmd == 'restart':
+            c.m_cmd_am_restart()
 
-        c.m_sendCmd()
-        c.m_recvAnswer()
-
-    c.m_close()
+    c.m_destroy()
 

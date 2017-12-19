@@ -3,6 +3,7 @@
 #
 
 import threading
+from utils.Binder import Binder
 
 
 class ActivityManager(object):
@@ -21,10 +22,18 @@ class ActivityManager(object):
         return cls._instance
 
     def __init__(self):
-        self.app = None
+        pass
 
-    def m_addAppTask(self, app):
-        self.app = app
+    def m_init(self):
+        self.app = None
+        self.o_binder = Binder()
+        self.o_binder.m_registerObj(self.__class__.__name__, self.__class__)
+
+    def m_addAppTask(self, s_app):
+        import importlib
+        packageModule = importlib.import_module('packages.' + s_app + '.src.' + s_app)
+        o_package = eval('packageModule.' + s_app + '()')
+        self.app = o_package
     def m_getAppTasks(self):
         return self.app
 
@@ -37,6 +46,10 @@ class ActivityManager(object):
         self.app.onStop()
         self.app.onRestart()
         self.app.onDestroy()
+
+    def m_destroy(self):
+        if self.o_binder is not None:
+            self.o_binder.m_unregisterObj()
 
 
 class AppTask(object):
